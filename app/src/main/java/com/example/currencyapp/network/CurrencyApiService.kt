@@ -10,7 +10,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 private const val BASE_URL = "https://api.exchangeratesapi.io/"
-private const val BASE_CUR = "latest?base="
+private const val BASE_CUR = "latest?base"
 
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
@@ -24,8 +24,8 @@ private val retrofit = Retrofit.Builder()
 
 interface CurrencyApiService {
 
-    @GET(BASE_CUR)
-    fun getProperties(@Query("currency") currency: String) :
+    @GET("latest")
+    fun getProperties(@Query("base") currency: String) :
             Call<String>
 }
 

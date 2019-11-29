@@ -1,22 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <variable
             name="currencyViewModel"
             type="com.example.currencyapp.CurrencyListViewModel" />
     </data>
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_height="match_parent"
+        android:layout_width="match_parent"
         tools:context=".CurrencyListFragment">
 
-
+        <TextView
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:id="@+id/currencyName"
+            android:text="@{currencyViewModel.baseCurrency}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:textStyle="bold"/>
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@{currencyViewModel.response}" />
+            app:layout_constraintTop_toBottomOf="@id/currencyName"
+            app:layout_constraintStart_toStartOf="parent"
+            android:id="@+id/currencyRate"
+            android:text="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:paddingLeft="16dp" />
 
-    </FrameLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/currency_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:paddingBottom="60dp"
+            app:layout_constraintTop_toBottomOf="@+id/currencyRate"
+            tools:ignore="InvalidId">
+
+        </androidx.recyclerview.widget.RecyclerView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
