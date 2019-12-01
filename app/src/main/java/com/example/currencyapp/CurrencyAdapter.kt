@@ -49,7 +49,7 @@ class CurrencyViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
         nameView?.text = currency.name
         fullNameView?.text = currency.fullName
 
-        fullRateView?.text = BigDecimal(currency.fullRate).setScale(2, RoundingMode.HALF_EVEN).toString()
+        fullRateView?.text = BigDecimal(currency.fullRate.toDouble()).setScale(2, RoundingMode.HALF_EVEN).toString()
         rateView?.text = currency.rateString
 
 

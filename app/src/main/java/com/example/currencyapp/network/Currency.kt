@@ -1,11 +1,13 @@
 package com.example.currencyapp.network
 
+import java.math.BigDecimal
+
 data class Currency (
     var name: String,
-    val rate: Double
+    val rate: BigDecimal
 ) {
     var rateString: String = ""
-    var fullRate: Double = 1.0
+    var fullRate: BigDecimal = BigDecimal(1.0)
     val fullName: String = when (name) {
         "CAD" -> "Canadian Dollar"
         "HKD" -> "Hong Kong Dollar"
