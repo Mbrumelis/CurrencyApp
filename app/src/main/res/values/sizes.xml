@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="sidePadding">16dp</dimen>
+    <dimen name="betweenTextPadding">2dp</dimen>
+    <dimen name="smallText">15sp</dimen>
+    <dimen name="mediumText">18sp</dimen>
+    <dimen name="largeText">20sp</dimen>
+</resources>

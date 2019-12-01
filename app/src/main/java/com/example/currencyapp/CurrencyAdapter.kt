@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.currencyapp.network.Currency
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 class CurrencyAdapter(val itemClickListener: OnItemClickListener) : RecyclerView.Adapter<CurrencyViewHolder>() {
     var data = ArrayList<Currency>()
@@ -27,19 +29,29 @@ class CurrencyAdapter(val itemClickListener: OnItemClickListener) : RecyclerView
 }
 
 class CurrencyViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
-        RecyclerView.ViewHolder(inflater.inflate(R.layout.currency_item_view, parent, false)) {
-    private var currencyNameView: TextView? = null
-    private var currencyRateView: TextView? = null
+        RecyclerView.ViewHolder(inflater.inflate(R.layout.currency_list_grey, parent, false)) {
+    private var nameView: TextView? = null
+    private var rateView: TextView? = null
+    private var fullNameView: TextView? = null
+    private var fullRateView: TextView? = null
 
 
     init {
-        currencyNameView = itemView.findViewById(R.id.list_title)
-        currencyRateView = itemView.findViewById(R.id.list_description)
+
+        fullRateView = itemView.findViewById(R.id.list_fullrate_black)
+        nameView = itemView.findViewById(R.id.list_title_black)
+        rateView = itemView.findViewById(R.id.list_rate_darkgray)
+        fullNameView = itemView.findViewById(R.id.list_fulltitle_darkgray)
     }
 
     fun bind(currency: Currency, clickListener: OnItemClickListener) {
-        currencyNameView?.text = currency.name
-        currencyRateView?.text = currency.rate.toString()
+
+        nameView?.text = currency.name
+        fullNameView?.text = currency.fullName
+
+        fullRateView?.text = BigDecimal(currency.fullRate).setScale(2, RoundingMode.HALF_EVEN).toString()
+        rateView?.text = currency.rateString
+
 
         itemView.setOnClickListener {
             clickListener.onItemClicked(currency)

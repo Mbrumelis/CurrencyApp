@@ -11,14 +11,19 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 
 class CurrencyListViewModel : ViewModel() {
 
+    var baseCurrencyObject = Currency("EUR", 1.0)
+    val baseCurrency = MutableLiveData<Currency>(baseCurrencyObject)
 
-    val baseCurrency = MutableLiveData<String>()
 
-    private val  currencyArray = ArrayList<Currency>()
+    var baseCurrencyRate: Double = 1.0
+
+    private val currencyArray = ArrayList<Currency>()
 
     private val _currencyList = MutableLiveData<ArrayList<Currency>>()
     val currencyList: LiveData<ArrayList<Currency>>
@@ -29,24 +34,23 @@ class CurrencyListViewModel : ViewModel() {
     }
 
     fun getCurrencyList() {
-        if (baseCurrency.value == null){
-            baseCurrency.value = "EUR"
-        }
-        CurrencyApi.retrofitService.getProperties(baseCurrency.value!!).enqueue(object : Callback<String> {
-            override fun onFailure(call: Call<String>, t: Throwable) {
-            }
 
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-                if (response.body() != null){
-
-                    currencyArray.clear()
-                    createCurrencyList(response.body()!!)
+        CurrencyApi.retrofitService.getProperties(baseCurrency.value!!.name)
+            .enqueue(object : Callback<String> {
+                override fun onFailure(call: Call<String>, t: Throwable) {
                 }
-            }
-        })
+
+                override fun onResponse(call: Call<String>, response: Response<String>) {
+                    if (response.body() != null) {
+
+                        currencyArray.clear()
+                        createCurrencyList(response.body()!!)
+                    }
+                }
+            })
     }
 
-    private fun createCurrencyList (json: String){
+    private fun createCurrencyList(json: String) {
         val jsonObject = JSONObject(json).getJSONObject("rates")
 
         val keys = jsonObject.keys()
@@ -55,13 +59,29 @@ class CurrencyListViewModel : ViewModel() {
 
             val rate = jsonObject.getDouble(currencyName)
             val currency = Currency(currencyName, rate)
+            currency.fullRate = baseCurrencyRate * rate
+            val roundedRate =
+                BigDecimal(currency.fullRate).setScale(2, RoundingMode.HALF_EVEN).toString()
+
+            currency.rateString = "1 ${baseCurrencyObject.name} = $roundedRate"
             currencyArray.add(currency)
-            Log.d("Res1", currency.rate.toString())
         }
         _currencyList.value = currencyArray
-        Log.d("Res1", baseCurrency.value)
     }
 
+    fun setNewRate(newRate: String) {
+            if (baseCurrencyRate != newRate.toDouble()) {
+                baseCurrencyRate = newRate.toDouble()
+                getCurrencyList()
+            }
+    }
+
+    fun onListItemClick(currency: Currency) {
+        baseCurrencyObject = Currency(currency.name, baseCurrencyObject.rate)
+        baseCurrency.value = baseCurrencyObject
+        getCurrencyList()
+
+    }
 
 
 }

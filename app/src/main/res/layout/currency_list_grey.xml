@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
+    android:background="@drawable/currency_box_gray"
+    android:layout_marginTop="@dimen/sidePadding"
+    android:layout_marginLeft="@dimen/sidePadding"
+    android:layout_marginRight="@dimen/sidePadding"
+    android:padding="@dimen/sidePadding"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:id="@+id/list_title_black"
+        android:textSize="@dimen/mediumText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        app:layout_constraintTop_toBottomOf="@+id/list_title_black"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="@dimen/betweenTextPadding"
+        android:id="@+id/list_fulltitle_darkgray"
+        android:textSize="@dimen/smallText"
+        android:textColor="@color/text_light_gray"
+        android:text="American Dollar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:textSize="@dimen/mediumText"
+        android:id="@+id/list_fullrate_black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        app:layout_constraintTop_toBottomOf="@id/list_fullrate_black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="@dimen/betweenTextPadding"
+        android:textSize="@dimen/smallText"
+        android:textColor="@color/text_light_gray"
+        android:id="@+id/list_rate_darkgray"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
