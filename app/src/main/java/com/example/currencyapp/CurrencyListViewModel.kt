@@ -5,18 +5,18 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.currencyapp.network.Currency
-import com.example.currencyapp.network.CurrencyApi
-import com.example.currencyapp.network.ExchangeRateResponseDTO
+import com.example.currencyapp.network.*
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.Retrofit
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 
 class CurrencyListViewModel : ViewModel() {
+    val repository: CurrencyRepository = CurrencyRepository()
 
     var baseCurrencyObject = Currency("EUR", BigDecimal(1.0))
     val baseCurrency = MutableLiveData<Currency>(baseCurrencyObject)
@@ -31,50 +31,40 @@ class CurrencyListViewModel : ViewModel() {
         get() = _currencyList
 
     init {
-        getCurrencyList()
+        getCurrencyLiveData()
     }
 
-    fun getCurrencyList() {
 
-        CurrencyApi.retrofitService.getProperties(baseCurrency.value!!.name)
-            .enqueue(object : Callback<ExchangeRateResponseDTO> {
-                override fun onFailure(call: Call<ExchangeRateResponseDTO>, t: Throwable) {
-                }
-
-                override fun onResponse(call: Call<ExchangeRateResponseDTO>, response: Response<ExchangeRateResponseDTO>) {
-                    if (response.body() != null) {
-
-                        currencyArray.clear()
-                        createCurrencyList(response.body()!!)
-                    }
-                }
-            })
+    fun getCurrencyLiveData(): LiveData<ExchangeRateResponseDTO> {
+        return repository.getCurrencyList(baseCurrencyObject)
     }
 
-    private fun createCurrencyList(currencyDTO: ExchangeRateResponseDTO) {
-        for((key, value) in currencyDTO.rates){
-            val currency = Currency(key, value)
-            currency.fullRate = baseCurrencyRate * value
-            val roundedRate =
-                BigDecimal(currency.fullRate.toDouble()).setScale(2, RoundingMode.HALF_EVEN).toString()
-            currency.rateString = "1 ${baseCurrencyObject.name} = $roundedRate"
-            currencyArray.add(currency)
-        }
-        _currencyList.value = currencyArray
-    }
-
-    fun setNewRate(newRate: String) {
-            if (baseCurrencyRate != newRate.toBigDecimal()) {
-                baseCurrencyRate = newRate.toBigDecimal()
-                getCurrencyList()
+    fun createCurrencyList(currencyDTO: ExchangeRateResponseDTO) {
+        if (currencyDTO != null) {
+            currencyArray.clear()
+            for ((key, value) in currencyDTO.rates) {
+                val currency = Currency(key, value)
+                currency.fullRate = baseCurrencyRate * value
+                val roundedRate =
+                    BigDecimal(currency.fullRate.toDouble()).setScale(2, RoundingMode.HALF_EVEN)
+                        .toString()
+                currency.rateString = "1 ${baseCurrencyObject.name} = $roundedRate"
+                currencyArray.add(currency)
             }
+            _currencyList.value = currencyArray
+        }
+    }
+
+    fun setNewRate(newRate: String): Boolean {
+        if (baseCurrencyRate != newRate.toBigDecimal()) {
+            baseCurrencyRate = newRate.toBigDecimal()
+            return true
+        } else return false
     }
 
     fun onListItemClick(currency: Currency) {
         baseCurrencyObject = Currency(currency.name, baseCurrencyObject.rate)
         baseCurrency.value = baseCurrencyObject
-        getCurrencyList()
-
     }
 
 
