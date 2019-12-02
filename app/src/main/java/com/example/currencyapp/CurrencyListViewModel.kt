@@ -6,17 +6,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.currencyapp.network.*
-import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
+import kotlinx.coroutines.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 
 class CurrencyListViewModel : ViewModel() {
-    val repository: CurrencyRepository = CurrencyRepository()
+    var client: CurrencyApiService = retrofit
+
+    private val supervisorJob = SupervisorJob()
 
     var baseCurrencyObject = Currency("EUR", BigDecimal(1.0))
     val baseCurrency = MutableLiveData<Currency>(baseCurrencyObject)
@@ -31,12 +29,28 @@ class CurrencyListViewModel : ViewModel() {
         get() = _currencyList
 
     init {
-        getCurrencyLiveData()
+        getCurrencyList()
+        refreshCurrencyList()
     }
 
 
-    fun getCurrencyLiveData(): LiveData<ExchangeRateResponseDTO> {
-        return repository.getCurrencyList(baseCurrencyObject)
+    private fun refreshCurrencyList() {
+        supervisorJob.cancelChildren()
+        CoroutineScope(Dispatchers.IO + supervisorJob).launch {
+            while (this.isActive){
+                delay(10000L)
+                getCurrencyList()
+            }
+        }
+    }
+
+    fun getCurrencyList() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val currencyList = client.getProperties(baseCurrencyObject.name)
+            withContext(Dispatchers.Main) {
+                createCurrencyList(currencyList)
+            }
+        }
     }
 
     fun createCurrencyList(currencyDTO: ExchangeRateResponseDTO) {
@@ -58,6 +72,7 @@ class CurrencyListViewModel : ViewModel() {
     fun setNewRate(newRate: String): Boolean {
         if (baseCurrencyRate != newRate.toBigDecimal()) {
             baseCurrencyRate = newRate.toBigDecimal()
+            refreshCurrencyList()
             return true
         } else return false
     }
@@ -65,6 +80,7 @@ class CurrencyListViewModel : ViewModel() {
     fun onListItemClick(currency: Currency) {
         baseCurrencyObject = Currency(currency.name, baseCurrencyObject.rate)
         baseCurrency.value = baseCurrencyObject
+        refreshCurrencyList()
     }
 
 

@@ -50,7 +50,7 @@ class CurrencyListFragment : Fragment(), OnItemClickListener {
             val newRate = binding.listFullrateWhite.getText().toString()
             if(actionId == EditorInfo.IME_ACTION_DONE && newRate != ""){
                 if(currencyViewModel.setNewRate(newRate)) {
-                    retrieveCurrencyList()
+                    currencyViewModel.getCurrencyList()
                     true
                 }
             }
@@ -66,21 +66,15 @@ class CurrencyListFragment : Fragment(), OnItemClickListener {
             }
         })
 
-        retrieveCurrencyList()
 
         binding.setLifecycleOwner(this)
         return binding.root
     }
 
-    private fun retrieveCurrencyList(){
-        currencyViewModel.getCurrencyLiveData().observe(this, Observer{
-            currencyViewModel.createCurrencyList(it)
-        })
-    }
 
     override fun onItemClicked(currency: Currency) {
         currencyViewModel.onListItemClick(currency)
-        retrieveCurrencyList()
+        currencyViewModel.getCurrencyList()
     }
 
 
