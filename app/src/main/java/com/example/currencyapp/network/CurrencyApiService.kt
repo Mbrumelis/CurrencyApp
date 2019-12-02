@@ -1,6 +1,5 @@
 package com.example.currencyapp.network
 
-import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -9,7 +8,7 @@ private const val BASE_URL = "https://api.exchangeratesapi.io/"
 
 interface CurrencyApiService {
     @GET("latest")
-    fun getProperties(@Query("base") currency: String): Call<ExchangeRateResponseDTO>
+    suspend fun getProperties(@Query("base") currency: String): ExchangeRateResponseDTO
 }
 
 val retrofit by lazy {
