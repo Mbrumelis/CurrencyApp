@@ -39,21 +39,27 @@ class CurrencyListViewModel : ViewModel() {
         CoroutineScope(Dispatchers.IO + supervisorJob).launch {
             while (this.isActive){
                 delay(10000L)
+                Log.d("Refr1", "Refreshed currency list")
                 getCurrencyList()
             }
         }
     }
 
-    fun getCurrencyList() {
+    private fun getCurrencyList() {
         CoroutineScope(Dispatchers.IO).launch {
-            val currencyList = client.getProperties(baseCurrencyObject.name)
-            withContext(Dispatchers.Main) {
-                createCurrencyList(currencyList)
+            try {
+                val currencyList = client.getProperties(baseCurrencyObject.name)
+                withContext(Dispatchers.Main) {
+                    createCurrencyList(currencyList)
+                }
+            } catch(e: Throwable) {
+                Log.d("Error123", e.message)
             }
+
         }
     }
 
-    fun createCurrencyList(currencyDTO: ExchangeRateResponseDTO) {
+    private fun createCurrencyList(currencyDTO: ExchangeRateResponseDTO) {
         if (currencyDTO != null) {
             currencyArray.clear()
             for ((key, value) in currencyDTO.rates) {
@@ -69,18 +75,21 @@ class CurrencyListViewModel : ViewModel() {
         }
     }
 
-    fun setNewRate(newRate: String): Boolean {
+    fun setNewRate(newRate: String){
         if (baseCurrencyRate != newRate.toBigDecimal()) {
             baseCurrencyRate = newRate.toBigDecimal()
-            refreshCurrencyList()
-            return true
-        } else return false
+            for (curr in currencyArray){
+                curr.fullRate = curr.rate * baseCurrencyRate
+            }
+            _currencyList.value = currencyArray
+        }
     }
 
     fun onListItemClick(currency: Currency) {
         baseCurrencyObject = Currency(currency.name, baseCurrencyObject.rate)
         baseCurrency.value = baseCurrencyObject
-        refreshCurrencyList()
+        getCurrencyList()
+        refreshCurrencyList() // When a new currency is selected refreshes the timer to 0
     }
 
 
