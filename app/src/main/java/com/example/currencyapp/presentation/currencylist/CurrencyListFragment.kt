@@ -1,11 +1,7 @@
-package com.example.currencyapp
+package com.example.currencyapp.presentation.currencylist
 
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.text.Editable
-import android.text.InputType
-import android.text.TextWatcher
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,16 +9,24 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import com.example.currencyapp.domain.model.CurrencyDomainModel
+import com.example.currencyapp.presentation.currencylist.recyclerview.CurrencyAdapter
+import com.example.currencyapp.presentation.currencylist.recyclerview.OnItemClickListener
+import com.example.currencyapp.R
 import com.example.currencyapp.databinding.CurrencyListFragmentBinding
-import com.example.currencyapp.network.Currency
-import kotlinx.android.synthetic.main.currency_list_fragment.*
+import org.kodein.di.KodeinAware
+import org.kodein.di.android.x.kodein
+import org.kodein.di.generic.instance
 
 
-class CurrencyListFragment : Fragment(), OnItemClickListener {
+class CurrencyListFragment() : Fragment(),
+    OnItemClickListener, KodeinAware {
 
-
+    override val kodein by kodein()
     private lateinit var binding: CurrencyListFragmentBinding
     private lateinit var currencyViewModel: CurrencyListViewModel
+
+    private val viewModelFactory: CurrencyListViewModelFactory by instance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,15 +40,17 @@ class CurrencyListFragment : Fragment(), OnItemClickListener {
             false
         )
 
-        currencyViewModel = ViewModelProviders.of(this).get(CurrencyListViewModel::class.java)
+        currencyViewModel = ViewModelProviders.of(this, viewModelFactory)
+            .get(CurrencyListViewModel::class.java)
 
-        binding.currencyViewModel= currencyViewModel
+        binding.currencyViewModel = currencyViewModel
 
-        val adapter = CurrencyAdapter(this)
+        val adapter =
+            CurrencyAdapter(this)
         binding.currencyList.adapter =  adapter
 
 
-        binding.listFullrateWhite.setText(currencyViewModel.baseCurrencyRate.toString())
+        binding.listFullrateWhite.setText(currencyViewModel.baseCurrencyObject.rate.toString())
 
         binding.listFullrateWhite.setOnEditorActionListener { v, actionId, event ->
             val newRate = binding.listFullrateWhite.getText().toString()
@@ -52,7 +58,7 @@ class CurrencyListFragment : Fragment(), OnItemClickListener {
                 currencyViewModel.setNewRate(newRate)
                 true
             }
-            else binding.listFullrateWhite.setText(currencyViewModel.baseCurrencyRate.toString())
+            else binding.listFullrateWhite.setText(currencyViewModel.baseCurrencyObject.rate.toString())
             false
         }
 
@@ -70,7 +76,7 @@ class CurrencyListFragment : Fragment(), OnItemClickListener {
     }
 
 
-    override fun onItemClicked(currency: Currency) {
+    override fun onItemClicked(currency: CurrencyDomainModel) {
         currencyViewModel.onListItemClick(currency)
     }
 

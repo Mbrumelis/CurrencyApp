@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/currencyList"
-        android:name="com.example.currencyapp.CurrencyListFragment"
+        android:name="com.example.currencyapp.presentation.currencylist.CurrencyListFragment"
         android:label="currency_list_fragment"
         tools:layout="@layout/currency_list_fragment" />
 </navigation>

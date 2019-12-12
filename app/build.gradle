@@ -63,6 +63,10 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$version_retrofit"
     implementation "com.squareup.retrofit2:converter-moshi:$version_retrofit"
 
+    implementation "org.kodein.di:kodein-di-generic-jvm:6.1.0"
+    implementation "org.kodein.di:kodein-di-framework-android-core:6.1.0"
+    implementation "org.kodein.di:kodein-di-framework-android-x:6.1.0"
+
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

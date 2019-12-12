@@ -1,10 +1,10 @@
-package com.example.currencyapp.network
+package com.example.currencyapp.domain.model
 
 import java.math.BigDecimal
 
-data class Currency (
+data class CurrencyDomainModel (
     var name: String,
-    val rate: BigDecimal
+    var rate: BigDecimal
 ) {
     var rateString: String = ""
     var fullRate: BigDecimal = BigDecimal(1.0)
