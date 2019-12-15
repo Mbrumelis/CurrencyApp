@@ -12,9 +12,10 @@ internal data class CurrencyListDTO(
 
 internal fun CurrencyListDTO.toDomainModel(baseRate: BigDecimal): CurrencyListDomainModel {
 
-    val currencyList: ArrayList<CurrencyDomainModel> = ArrayList<CurrencyDomainModel>()
+    val currencyList: ArrayList<CurrencyDomainModel> = ArrayList()
 
-    for ((key, value) in this.rates) {
+    val sorted = this.rates.toSortedMap()
+    for ((key, value) in sorted) {
         val currency = CurrencyDomainModel(key, value)
         currency.fullRate = baseRate * value
         val roundedRate =

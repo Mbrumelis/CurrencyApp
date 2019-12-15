@@ -10,6 +10,9 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rootView"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         tools:context=".presentation.currencylist.CurrencyListFragment">
@@ -51,7 +54,6 @@
                 android:inputType="numberDecimal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:textSize="@dimen/largeText"
                 android:textColor="@color/text_white"
                 android:imeOptions="actionDone"

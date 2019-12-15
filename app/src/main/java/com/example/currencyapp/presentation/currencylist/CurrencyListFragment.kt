@@ -1,7 +1,11 @@
 package com.example.currencyapp.presentation.currencylist
 
+import android.graphics.Rect
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -50,17 +54,37 @@ class CurrencyListFragment() : Fragment(),
         binding.currencyList.adapter =  adapter
 
 
+
         binding.listFullrateWhite.setText(currencyViewModel.baseCurrencyObject.rate.toString())
 
-        binding.listFullrateWhite.setOnEditorActionListener { v, actionId, event ->
-            val newRate = binding.listFullrateWhite.getText().toString()
-            if(actionId == EditorInfo.IME_ACTION_DONE && newRate != ""){
-                currencyViewModel.setNewRate(newRate)
-                true
+
+        binding.rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            val rec = Rect()
+            binding.rootView.getWindowVisibleDisplayFrame(rec)
+            //finding screen height
+            val screenHeight = binding.rootView.rootView.height
+            //finding keyboard height
+            val keypadHeight = screenHeight - rec.bottom
+            if (keypadHeight < screenHeight * 0.15 && binding.listFullrateWhite.text.toString() == "") {
+                binding.listFullrateWhite.setText(currencyViewModel.baseCurrencyObject.rate.toString())
             }
-            else binding.listFullrateWhite.setText(currencyViewModel.baseCurrencyObject.rate.toString())
-            false
         }
+
+
+        binding.listFullrateWhite.addTextChangedListener(object: TextWatcher{
+            override fun afterTextChanged(s: Editable?) {
+                }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if(binding.listFullrateWhite.text.toString() != ""){
+                    currencyViewModel.setNewRate(s.toString())
+                }
+            }
+
+        })
+
+
 
 
 
@@ -78,6 +102,7 @@ class CurrencyListFragment() : Fragment(),
 
     override fun onItemClicked(currency: CurrencyDomainModel) {
         currencyViewModel.onListItemClick(currency)
+        binding.currencyList.smoothScrollToPosition(0)
     }
 
 

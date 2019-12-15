@@ -12,6 +12,7 @@ import java.math.RoundingMode
 
 class CurrencyAdapter(val itemClickListener: OnItemClickListener) :
     RecyclerView.Adapter<CurrencyViewHolder>() {
+
     var data = ArrayList<CurrencyDomainModel>()
         set(value) {
             field = value
