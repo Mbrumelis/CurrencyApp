@@ -2,17 +2,17 @@ package com.example.currencyapp.presentation.currencylist
 
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import androidx.lifecycle.Transformations.switchMap
 import com.example.currencyapp.domain.model.CurrencyDomainModel
+import com.example.currencyapp.domain.model.toViewableList
 import com.example.currencyapp.domain.usecases.GetCurrencyListUseCase
 import kotlinx.coroutines.*
 import java.math.BigDecimal
 
 
-internal class CurrencyListViewModel(private val getCurrencyListUseCase: GetCurrencyListUseCase) : ViewModel() {
+internal class CurrencyListViewModel(private val getCurrencyListUseCase: GetCurrencyListUseCase) :
+    ViewModel() {
 
 
     var baseCurrencyObject = CurrencyDomainModel("EUR", BigDecimal(1.0))
@@ -20,45 +20,44 @@ internal class CurrencyListViewModel(private val getCurrencyListUseCase: GetCurr
 
     private var currencyArray = ArrayList<CurrencyDomainModel>()
 
-    private val _currencyList = MutableLiveData<ArrayList<CurrencyDomainModel>>()
-    val currencyList: LiveData<ArrayList<CurrencyDomainModel>>
-        get() = _currencyList
-
-    init {
-        getCurrencyList()
-        refreshCurrencyList()
-    }
 
 
-    private fun refreshCurrencyList() {
-        viewModelScope.launch {
-            while (this.isActive){
+    val viewCurrencyList: MutableLiveData<ArrayList<CurrencyDomainModel>>
+        get() = currencyList as MutableLiveData<ArrayList<CurrencyDomainModel>>
+
+
+    private val currencyList: LiveData<ArrayList<CurrencyDomainModel>> = switchMap(baseCurrency) {
+        liveData {
+            while (true) {
+                try {
+                    emit(getNewRate())
+                } catch (e: Throwable) {
+                    Log.d("Error123", e.message)
+                }
                 delay(10000L)
-                getCurrencyList()
             }
         }
     }
 
-    private fun getCurrencyList() {
-        viewModelScope.launch {
-            try {
-                val currencyListDomainModel = getCurrencyListUseCase.execute(baseCurrencyObject.name, baseCurrencyObject.rate)
-                    currencyArray = currencyListDomainModel!!.currencyList
-                    _currencyList.value = currencyArray
-            } catch(e: Throwable) {
-                Log.d("Error123", e.message)
-            }
-
-        }
+    private suspend fun getNewRate(): ArrayList<CurrencyDomainModel> {
+            val currencyListDomainList =
+                getCurrencyListUseCase.execute(
+                    baseCurrencyObject.name,
+                    baseCurrencyObject.rate
+                )?.toViewableList()
+            Log.d("DEBUG123", "New List" + baseCurrencyObject.name)
+            currencyArray = currencyListDomainList!!
+            return currencyListDomainList
     }
 
-    fun setNewRate(newRate: String){
+
+    fun setNewRate(newRate: String) {
         if (baseCurrencyObject.rate != newRate.toBigDecimal()) {
             baseCurrencyObject.rate = newRate.toBigDecimal()
-            for (curr in currencyArray){
+            for (curr in currencyArray) {
                 curr.fullRate = curr.rate * baseCurrencyObject.rate
             }
-            _currencyList.value = currencyArray
+            viewCurrencyList.value = currencyArray
         }
     }
 
@@ -66,10 +65,8 @@ internal class CurrencyListViewModel(private val getCurrencyListUseCase: GetCurr
         baseCurrencyObject =
             CurrencyDomainModel(currency.name, baseCurrencyObject.rate)
         baseCurrency.value = baseCurrencyObject
-        viewModelScope.coroutineContext.cancelChildren()
-        getCurrencyList()
-        refreshCurrencyList() // When a new currency is selected refreshes the timer to 0
     }
-
-
 }
+
+
+

@@ -3,7 +3,6 @@ package com.example.currencyapp.data.model
 import com.example.currencyapp.domain.model.CurrencyDomainModel
 import com.example.currencyapp.domain.model.CurrencyListDomainModel
 import java.math.BigDecimal
-import java.math.RoundingMode
 
 internal data class CurrencyListDTO(
     val rates: Map<String, BigDecimal>,
@@ -13,17 +12,12 @@ internal data class CurrencyListDTO(
 internal fun CurrencyListDTO.toDomainModel(baseRate: BigDecimal): CurrencyListDomainModel {
 
     val currencyList: ArrayList<CurrencyDomainModel> = ArrayList()
-
     val sorted = this.rates.toSortedMap()
+    val baseCurrency = CurrencyDomainModel(this.base, baseRate)
     for ((key, value) in sorted) {
         val currency = CurrencyDomainModel(key, value)
-        currency.fullRate = baseRate * value
-        val roundedRate =
-            BigDecimal(value.toDouble()).setScale(2, RoundingMode.HALF_EVEN).toString()
-        currency.rateString = "1 ${base} = $roundedRate"
         currencyList.add(currency)
     }
-
-    return CurrencyListDomainModel(currencyList)
+    return CurrencyListDomainModel(currencyList, baseCurrency)
 
 }

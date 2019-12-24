@@ -5,12 +5,10 @@ import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.example.currencyapp.domain.model.CurrencyDomainModel
@@ -23,7 +21,7 @@ import org.kodein.di.android.x.kodein
 import org.kodein.di.generic.instance
 
 
-class CurrencyListFragment() : Fragment(),
+class CurrencyListFragment : Fragment(),
     OnItemClickListener, KodeinAware {
 
     override val kodein by kodein()
@@ -54,8 +52,7 @@ class CurrencyListFragment() : Fragment(),
         binding.currencyList.adapter =  adapter
 
 
-
-        binding.listFullrateWhite.setText(currencyViewModel.baseCurrencyObject.rate.toString())
+        binding.listFullrateWhite.setText(String.format("%.2f", currencyViewModel.baseCurrencyObject.rate))
 
 
         binding.rootView.viewTreeObserver.addOnGlobalLayoutListener {
@@ -66,7 +63,7 @@ class CurrencyListFragment() : Fragment(),
             //finding keyboard height
             val keypadHeight = screenHeight - rec.bottom
             if (keypadHeight < screenHeight * 0.15 && binding.listFullrateWhite.text.toString() == "") {
-                binding.listFullrateWhite.setText(currencyViewModel.baseCurrencyObject.rate.toString())
+                binding.listFullrateWhite.setText(String.format("%.2f", currencyViewModel.baseCurrencyObject.rate))
             }
         }
 
@@ -88,14 +85,14 @@ class CurrencyListFragment() : Fragment(),
 
 
 
-        currencyViewModel.currencyList.observe(viewLifecycleOwner, Observer {
+        currencyViewModel.viewCurrencyList.observe(viewLifecycleOwner, Observer {
             it?.let{
                 adapter.data = it
             }
         })
 
 
-        binding.setLifecycleOwner(this)
+        binding.lifecycleOwner = this
         return binding.root
     }
 
